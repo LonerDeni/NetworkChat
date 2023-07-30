@@ -1,10 +1,11 @@
 package Client;
 
 
+
 import java.io.*;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.logging.*;
+
 
 public class Client extends Thread {
     private String host;
@@ -13,9 +14,7 @@ public class Client extends Thread {
     private BufferedWriter out;
     private Socket socket;
     private String userName;
-    private Date time;
-    private SimpleDateFormat dateForm;
-    private String mesDate;
+    public Logger logger = Logger.getLogger(Client.class.getName());
 
     public Client(String host, int port) {
         this.host = host;
@@ -23,7 +22,7 @@ public class Client extends Thread {
         try {
             this.socket = new Socket(host, port);
         } catch (IOException e) {
-            System.err.println("Socket failed");
+            logger.log(Level.FINE, "При создании сокета возникла ошибка", e);
         }
         try {
             inputUser = new BufferedReader(new InputStreamReader(System.in));
@@ -32,6 +31,7 @@ public class Client extends Thread {
             new Thread(readMessage).start();
             new Thread(writeMessage).start();
         } catch (IOException e) {
+            logger.log(Level.WARNING, "Буферезированный поток вызвал IOException", e);
             downServices();
         }
     }
@@ -48,6 +48,7 @@ public class Client extends Thread {
                         downServices();
                         break;
                     }
+                    logger.log(Level.INFO, "Прочитано сообщение");
                     System.out.println(wordClients);
                 }
             } catch (IOException e) {
@@ -63,25 +64,24 @@ public class Client extends Thread {
                 System.out.println("Введите ваше имя:");
                 userName = inputUser.readLine();
                 out.write(userName + "\n");
+                logger.log(Level.INFO, "Введено имя", userName);
                 out.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Ошибка ввода имени в потоке записи", e);
             }
             try {
                 while (true) {
-                    time = new Date();
-                    dateForm = new SimpleDateFormat("HH:mm:ss");
-                    mesDate = dateForm.format(time);
                     String mes = inputUser.readLine();
-                    out.write("(" + mesDate + ") " + userName + ": " + mes + "\n");
+                    out.write(mes + "\n");
                     out.flush();
+                    logger.log(Level.INFO, "Введено сообщение");
                     if (mes.equals("/exit")) {
                         downServices();
                         break;
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Ошибка ввода сообщений в потоке записи", e);
             }
         }
     };
@@ -93,7 +93,8 @@ public class Client extends Thread {
                 in.close();
                 out.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Ошибка закрытия потоков ввода/вывода и сокета", e);
         }
     }
 }

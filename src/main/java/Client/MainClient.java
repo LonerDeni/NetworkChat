@@ -9,6 +9,6 @@ public class MainClient {
     public static void main(String[] args) throws IOException {
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("config.properties"));
         port = Integer.parseInt(System.getProperty("server.port"));
-        new Client(host,port);
+        new Client(host, port);
     }
 }

@@ -19,7 +19,6 @@ public class MainServer {
             historyMessage = new HistoryMessage();
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("New connection accepted" + socket.getInetAddress());
                 try {
                     clients.add(new Server(socket));
                 } catch (IOException e) {

@@ -3,12 +3,15 @@ package Servers;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HistoryMessage {
     protected List<String> historyM = new LinkedList<>();
     private static final StringBuilder logs = new StringBuilder();
-    private static String path = "NetworkChat/src/main/resources/";
+    private static String path = "/NetworkChat/src/main/resources/";
     private static String nameFile = "saveMessageServer.txt";
+    public Logger logger = Logger.getLogger(HistoryMessage.class.getName());
 
     public void addMessage(String message) {
         historyM.add(message);
@@ -33,9 +36,10 @@ public class HistoryMessage {
         try {
             if (!file.exists()) {
                 file.createNewFile();
+                logger.log(Level.FINE,"Создан новый файл " , name);
             }
         } catch (IOException e) {
-            e.getMessage();
+            logger.log(Level.WARNING,"Ошибка при создании файла" , e);
         }
     }
 
@@ -43,8 +47,9 @@ public class HistoryMessage {
         try (FileWriter fileWriter = new FileWriter(path, true)) {
             fileWriter.write(message + "\n");
             fileWriter.flush();
+            logger.log(Level.INFO,"В файл записана строка: " , message);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            logger.log(Level.WARNING,"Ошибка при записи в файла" , ex);
         }
     }
 
@@ -56,6 +61,7 @@ public class HistoryMessage {
                 while (line != null) {
                     writer.write(line + "\n");
                     line = reader.readLine();
+                    logger.log(Level.INFO,"Из файла прочитана строчка " , line);
                 }
                 reader.close();
             } else {
@@ -63,7 +69,7 @@ public class HistoryMessage {
                 writer.flush();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Ошибка при чтении из файла", e);
         }
     }
 }
